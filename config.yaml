@@ -49,5 +49,5 @@ bamcoverage:
 #MACS2
 macs2:
   genomesize: "--gsize mm"
-  format: "--format BAMPE"
+  format: "--format AUTO"
   outdir: "results/macs2"
