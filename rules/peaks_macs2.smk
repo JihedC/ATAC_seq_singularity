@@ -16,9 +16,7 @@ rule call_narrow_peaks:
         "Calling narrowPeak for {wildcards.sample}"
     log:
         RESULT_DIR + "logs/macs2/{sample}_peaks.narrowPeak.log",
-    singularity:'docker://biowardrobe2/macs2:v2.1.1'    
-    conda:
-        "../envs/macs2.yaml"
+    singularity:'docker://biowardrobe2/macs2:v2.1.1'
     shell:
         """
         macs2 callpeak -t {input} {params.format} {params.genomesize} \
