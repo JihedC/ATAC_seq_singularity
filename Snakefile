@@ -108,10 +108,11 @@ rule all:
         MACS2
         
     message: "ChIP-seq SE pipeline succesfully run."		#finger crossed to see this message!
-
+    singularity:'docker://ewels/multiqc:v1.13'
     shell:"""
-    cp units.tsv RESULT_DIR 
-    cp config.yaml RESULT_DIR
+    cp units.tsv results/parameter_of_analysis/ 
+    cp config.yaml results/results/parameter_of_analysis/
+    multiqc *  --outdir results/ 
     #rm -rf {WORKING_DIR}
     """
 
