@@ -1,16 +1,21 @@
-# ATAC_seq_Snakemake
-A snakemake pipeline for the analysis of ATAC-seq data
+# ATAC seq Snakemake
+A snakemake pipeline for the analysis of ATAC-seq data using singularity and docker
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥5.2.0-brightgreen.svg)](https://snakemake.bitbucket.io)
 [![Miniconda](https://img.shields.io/badge/miniconda-blue.svg)](https://conda.io/miniconda)
+[![Singularity](https://img.shields.io/badge/Singularity-important-brightgreen)](https://docs.sylabs.io/guides/3.5/user-guide/introduction.html)
+[![Docker](https://img.shields.io/badge/Docker-important-blue)](https://www.docker.com/)
 
 # Aim
+
 Snakemake pipeline made for reproducible analysis of paired-end Illumina ATAC-seq data. The desired output of this pipeline are:
 - fastqc zip and html files
 - bigWig files (including bamCompare rule)
 - bed files
 
 # How to use the Snakemake pipeline -- TLDR
+
+This paragraph should get the Snakemake workflow to work in few minutes:
 
 - download the pipeline: `git clone https://github.com/JihedC/ATAC_seq_singularity.git`
 - change directory to the newly downloaded pipeline: `cd ATAC_seq_singularity/`
@@ -43,8 +48,6 @@ This line would need to be replaced by the line obtained after running `module s
 
 - **Fastq/**, folder containing subsetted paired-end fastq files used to test locally the pipeline. Generated using [Seqtk](https://github.com/lh3/seqtk): `seqtk sample -s100 read1.fq 5000 > sub1.fqseqtk sample -s100 read2.fq 5000 > sub2.fq`. RAW fastq or fastq.gz files should be placed here before running the pipeline.
 
-- **envs/**, folder containing the environment needed for the Snakefile to run. To use Snakemake, it is required to create and activate an environment containing snakemake (here : envs/global_env.yaml )
-
 - **units.tsv**, is a tab separated value files containing information about the experiment name, the condition of the experiment (control or treatment) and the path to the fastq files relative to the **Snakefile**. **Change this file according to your samples.**
 
 - **rules/**, folder containing the rules called by the snakefile to run the pipeline, this improves the clarity of the Snakefile and might help modifying the file in the future.
@@ -54,15 +57,15 @@ This line would need to be replaced by the line obtained after running `module s
 
 ## Conda environment
 
-First, you need to create an environment for the use of Snakemake with [Conda package manager](https://conda.io/docs/using/envs.html).
-1. Create a virtual environment named "chipseq" from the `global_env.yaml` file with the following command: `conda env create --name chipseq --file ~/envs/global_env.yaml`
-2. Then, activate this virtual environment with `source activate chipseq`
+The only conda environment required to run this workflow is the **(snakemake)** environment. Details on how to install this environment can be found in the TLDR section of this documentation. 
+I strongly advise to take your time to install mamba since it is much faster than conda. Mamba replaces conda in almost all the usual conda commands. For example:
+Instead of using `conda install -c bioconda macs2` one can use `mamba install -c bioconda macs2`.
 
-The Snakefile will then take care of installing and loading the packages and softwares required by each step of the pipeline.
+The versions of the softwares are hard-coded in the rules. If one desires to use a particular version of a software, they would need to find a docker hub containing the desired version and to change it in every rules that uses the software.
 
 ## Configuration file
 
-The `~/configs/config_tomato_sub.yaml` file specifies the sample list, the genomic reference fasta file to use, the directories to use, etc. This file is then used to build parameters in the main `Snakefile`.
+The `config.yaml` file specifies the sample list, the genomic reference fasta file to use, the directories to use, etc. This file is then used to build parameters in the main `Snakefile`.
 
 ## Snakemake execution
 
@@ -71,7 +74,7 @@ It has many rich features. Read more [here](https://snakemake.readthedocs.io/en/
 
 ## Samples
 
-Samples are listed in the `units.tsv` file and will be used by the Snakefile automatically. Change the name, the conditions accordingly.
+Samples are listed in the `units.tsv` file and will be used by the Snakefile automatically. Change the name, the path to the raw data, the conditions accordingly.
 
 ## Dry run
 
@@ -79,27 +82,14 @@ Use the command `snakemake -np` to perform a dry run that prints out the rules a
 
 ## Real run
 
-Simply type `Snakemake --use-conda` and provide the number of cores with `--cores 10` for ten cores for instance.
-For cluster execution, please refer to the [Snakemake reference](https://snakemake.readthedocs.io/en/stable/executable.html#cluster-execution).
-Please pay attention to `--use-conda`, it is required for the installation and loading of the dependencies used by the rules of the pipeline.
-To run the pipeline, from the folder containing the Snakefile run the
+If the dry run is successful (no red lines on the screen), the workflow can be started with `sbatch slurm_snakemake.sh`
 
 # Main outputs
 
 The main output are :
 
-- **fastqc** : Provide informations about the quality of the sequences provided and generate a html file to visualize it. More information to be found [here](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+- **fastp** : Provide informations about the quality of the sequences provided and generate a html file to visualize it. More information to be found [here](https://github.com/OpenGene/fastp).Fastp provides 1 files per sample. MultiQC gather all samples together in an html file.
 
 - **bed** : Provide information generated by the MACS2 algorithm for the locations and significance of peaks. These files can be used for direct visualization of the peaks location using IGV or as an input for further analysis using the [bedtools](https://bedtools.readthedocs.io/en/latest/content/bedtools-suite.html)
 
-- **bigwig files** : Provides files allowing fast displays of read coverages track on any type of genome browsers.
-
-- **plotFingerprint** contains interesting figures that answer the question: **"Did my ChIP work???"** . Explanation of the plot and the options available can be found [here](https://deeptools.readthedocs.io/en/develop/content/tools/plotFingerprint.html)
-
-- **PLOTCORRELATION** folder contain pdf files displaying the correlation between the samples tested in the ChIP experiment, many options in the plotcorrelation rules can be changed via the configuration file. More information about this plot can be found [here](https://deeptools.readthedocs.io/en/develop/content/tools/plotCorrelation.html)
-
-- **HEATMAP** folder contain pdf files displaying the content of the matrix produced by the `computeMatrix` rule under the form of a heatmap. Many option for the `computeMatrix` and the `plotHeatmap` rules can be changed in the configuration file. More information about this figure can be found [here](https://deeptools.readthedocs.io/en/develop/content/tools/plotHeatmap.html).
-
-- **plotProfile** folder contain pdf files displaying profile plot for scores over sets of genomic region, again the genomic region are define in the matrix made previously. Again there are many options to change the plot and more information can be found [here](https://deeptools.readthedocs.io/en/develop/content/tools/plotProfile.html)
-
-Optionals outputs of the pipelines are **bamCompare**, **bedgraph** and **bed files for broad peaks calling**.
+- **bigwig files** : Provides files allowing fast displays of read coverages track on any type of genome browsers. The default normalization is RPKM and can be modified in the `config.yaml` file.
