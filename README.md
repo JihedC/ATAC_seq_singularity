@@ -10,6 +10,31 @@ Snakemake pipeline made for reproducible analysis of paired-end Illumina ATAC-se
 - bigWig files (including bamCompare rule)
 - bed files
 
+# How to use the Snakemake pipeline -- TLDR
+
+- download the pipeline: `git clone https://github.com/JihedC/ATAC_seq_singularity.git`
+- change directory to the newly downloaded pipeline: `cd ATAC_seq_singularity/`
+- if conda is not installed:
+  - download miniconda3: `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
+  - install miniconda in your folder: `sh Miniconda3-latest-Linux-x86_64.sh`
+  Say yes for the licence terms and either ENTER to confirm the location of installation or choose another location for the installation.
+  After the installation you will need to restart your terminal and reconnect to the HPC.
+  At the restart, "(base)" should appear on the left side of the prompt which means that you are in the base environment
+- install Mamba: `conda install -n base -c conda-forge mamba`  this might take a while, but it's worth it because it will make conda much faster. Accept all the install.
+- activate the base environment: `conda activate base`
+- install snakemake with mamba: `mamba create -c conda-forge -c bioconda -n snakemake snakemake` Accept the insllation with "Y"
+- activate the snakemake environment: `conda activate snakemake`
+- control that you are in the folder containing the workflow/pipeline: `pwd`
+- Use the dry run option to check that the download pipeline should work: `snakemake -np` if nothing appears in red, the pipeline should work.
+- Adapt the units.tsv file to your sample name and their path on the HPC. Make sure that the columns are tab seaparated values.
+- Use the dry run option to check that the pipeline will run now that the units.tsv is adapted: `snakemake -np` if nothing appears in red, the pipeline should work.
+- Start the pipeline: `sbatch slurm_snakemake.sh`
+
+Snakemake makes uses of **singularity** to pull images of Dockers containers. Dockers containers contains the softwares required for the rules set up in the Snakemake workflow.
+**Singularity is a must and will most likely be the source of error** 
+For now I have hard coded the module loaded by Shark: `module load container/singularity/3.10.0/gcc.8.5.0`. If in the future, this module is removed from Shark or modified, it might prevent the pipeline from working because it will not be able to pull containers. This line of code would then need to be modified in the file `slurm_snakemake.sh`.
+This line would need to be replaced by the line obtained after running `module spider singularity` on Shark.
+
 # Content of the repository
 
 - **Snakefile** containing the targeted output and the rules to generate them from the input files.
