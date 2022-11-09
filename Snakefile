@@ -109,7 +109,7 @@ rule all:
         
     message: "ChIP-seq SE pipeline succesfully run."		#finger crossed to see this message!
     singularity:'docker://ewels/multiqc:v1.13'
-    shell:"""q
+    shell:"""
     mkdir results/parameter_of_analysis/
     cp units.tsv results/parameter_of_analysis/ 
     cp config.yaml results/parameter_of_analysis/
