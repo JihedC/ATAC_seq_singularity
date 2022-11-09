@@ -16,6 +16,12 @@ module load tools/miniconda/python3.8/4.8.5
 # check that the modules are still correctly installed on the HPC
 # they may have been removed or updated
 
+#WD=/exports/humgen/jihed/test_snakemake/ATAC_seq_singularity
+#export SINGULARITY_BIND=$WD
+#singularity run docker://snakemake/snakemake:v7.18.1
+
+#echo "this is the version of Snakemake installed: " snakemake --version
+
 #########################################################################################
 
 echo Start time : `date`
