@@ -33,6 +33,8 @@ This paragraph should get the Snakemake workflow to work in few minutes:
 - Use the dry run option to check that the download pipeline should work: `snakemake -np` if nothing appears in red, the pipeline should work.
 - Adapt the units.tsv file to your sample name and their path on the HPC. Make sure that the columns are tab seaparated values.
 - Use the dry run option to check that the pipeline will run now that the units.tsv is adapted: `snakemake -np` if nothing appears in red, the pipeline should work.
+- Before running the pipeline on shark/slurm make sure that `slurm-cluster-status.py` have the following permissions set :"-rwxr-xr-x".
+If not the job scheduler will not be able to know whether a job is finished or not. To set the proper permission, use: `chmod 755 slurm-cluster-status.py`
 - Start the pipeline: `sbatch slurm_snakemake.sh`
 
 Snakemake makes uses of **singularity** to pull images of Dockers containers. Dockers containers contains the softwares required for the rules set up in the Snakemake workflow.
