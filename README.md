@@ -19,22 +19,43 @@ This paragraph should get the Snakemake workflow to work in few minutes:
 
 - download the pipeline: `git clone https://github.com/JihedC/ATAC_seq_singularity.git`
 - change directory to the newly downloaded pipeline: `cd ATAC_seq_singularity/`
+- To run the workflow requires conda to be installed. First check if conda is installed in your session
 - if conda is not installed:
   - download miniconda3: `wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh`
-  - install miniconda in your folder: `sh Miniconda3-latest-Linux-x86_64.sh`. (For a usage on Shark, due to space limit in the /home folder, you need to make sur to install the miniconda in your /exports/humgen/{username}/miniconda3/ folder. The installation will prompt the possibility to change the location of installation. )
-  Say yes for the licence terms and either ENTER to confirm the location of installation or choose another location for the installation.
-  After the installation you will need to restart your terminal and reconnect to the HPC.
-  At the restart, "(base)" should appear on the left side of the prompt which means that you are in the base environment
+  - install miniconda in your folder with: `sh Miniconda3-latest-Linux-x86_64.sh`. 
+  - Follow the instruction by pressing `ENTER` to go through the disclaimers and informations. You will be offered the choice to accept or not the licence terms. 
+  - Type `yes` to continue the installation.
+  - You will be then offered to define the location of installation of miniconda3. **(For a usage on Shark, due to space limit in the /home folder, you need to make sur to install the miniconda in your /exports/humgen/{username}/miniconda3/ folder by typing the absolute path in the prompt)**
+  - Once the installation is finished, conda will offer to initialize Miniconda3, type `yes` and press `ENTER`
+  - After the installation **you will need to restart your terminal** and reconnect to the HPC. On shark just disconnect from your session and connect as you usually do.
+  - At the restart, `(base)` should appear on the left side of the prompt which means that you are in the base environment and that **Miniconda installation was successful**.
+
 - install Mamba: `conda install -n base -c conda-forge mamba`  this might take a while, but it's worth it because it will make conda much faster. Accept all the install. This can be done in any folder. 
 - activate the base environment: `conda activate base`
-- install snakemake with mamba: `mamba create -c conda-forge -c bioconda -n snakemake snakemake` Accept the insllation with "Y"
+- install snakemake with mamba: `mamba create -c conda-forge -c bioconda -n snakemake snakemake=7.18.1` Accept the insllation with "Y"
 - activate the snakemake environment: `conda activate snakemake`
-- control that you are in the folder containing the workflow/pipeline: `pwd` otherwise go back to the folder with `ATAC_seq_singularity/`
+- control that you are in the folder containing the workflow/pipeline: `pwd` otherwise go back to the folder with `{absolute_path_to_pipeline}/ATAC_seq_singularity/`
+
 - Use the dry run option to check that the download pipeline should work: `snakemake -np` if nothing appears in red, the pipeline should work.
-- Adapt the units.tsv file to your sample name and their path on the HPC. Make sure that the columns are tab seaparated values.
+
+`snakemake -np` will use the dummy samples available when you download the pipeline to test if all the rules/job of the workflow are properly set.
+A list of Job and command line should appear in the terminal. At the bottom you should see the following image:
+
+![](/Users/jihedchouaref/Dropbox/Work/ATAC_seq_singularity/docs/summary_jobs_dry_run.png)
+
+A successful run should have a total of 27 jobs. 
+
+If error are raised, please read the error message. You may not be in the right folder or forgot to activate the snakemake environment.
+
+To run your own files adapt the `units.tsv` file, if you wishe only to test the workflow ** DO NOT** modify the `units.tsv`
+
+- Adapt the `units.tsv` file to your sample name and their path on the HPC using your favorite text editor. For example with `nano units.tsv`. Make sure that the columns are tab seaparated values.
+
 - Use the dry run option to check that the pipeline will run now that the units.tsv is adapted: `snakemake -np` if nothing appears in red, the pipeline should work.
+
 - Before running the pipeline on shark/slurm make sure that `slurm-cluster-status.py` have the following permissions set :"-rwxr-xr-x".
 If not the job scheduler will not be able to know whether a job is finished or not. To set the proper permission, use: `chmod 755 slurm-cluster-status.py`
+
 - Start the pipeline: `sbatch slurm_snakemake.sh`
 
 Snakemake makes uses of **singularity** to pull images of Dockers containers. Dockers containers contains the softwares required for the rules set up in the Snakemake workflow.
@@ -95,3 +116,13 @@ The main output are :
 - **bed** : Provide information generated by the MACS2 algorithm for the locations and significance of peaks. These files can be used for direct visualization of the peaks location using IGV or as an input for further analysis using the [bedtools](https://bedtools.readthedocs.io/en/latest/content/bedtools-suite.html)
 
 - **bigwig files** : Provides files allowing fast displays of read coverages track on any type of genome browsers. The default normalization is RPKM and can be modified in the `config.yaml` file.
+
+- **MultiQC** : An html that summarize the quality controls results performed on the samples. 
+
+
+# Overview of the pipeline 
+
+Below is an overview of the jobs run for each sample through the pipeline:
+
+![](/Users/jihedchouaref/Dropbox/Work/ATAC_seq_singularity/docs/dag.png)
+
