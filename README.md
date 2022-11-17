@@ -41,7 +41,7 @@ This paragraph should get the Snakemake workflow to work in few minutes:
 `snakemake -np` will use the dummy samples available when you download the pipeline to test if all the rules/job of the workflow are properly set.
 A list of Job and command line should appear in the terminal. At the bottom you should see the following image:
 
-![](/Users/jihedchouaref/Dropbox/Work/ATAC_seq_singularity/docs/summary_jobs_dry_run.png)
+![](docs/summary_jobs_dry_run.png)
 
 A successful run should have a total of 27 jobs. 
 
@@ -124,5 +124,5 @@ The main output are :
 
 Below is an overview of the jobs run for each sample through the pipeline:
 
-![](/Users/jihedchouaref/Dropbox/Work/ATAC_seq_singularity/docs/dag.png)
+![](docs/dag.png)
 
